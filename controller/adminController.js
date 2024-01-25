@@ -1,15 +1,8 @@
 const { v4: uuidv4 } = require("uuid");
-const admin = require("firebase-admin");
+const { admin } = require("../firebase/adminSdk");
 const bcrypt = require("bcrypt");
-const serviceAccount = require("../key/credentials.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: process.env.DATABASE_URL,
-});
 
 const db = admin.firestore();
-const auth = admin.auth();
 const uid = "sZn6iAa3IcNBhtgpofR2ykA1yRo2";
 const customClaims = { admin: true };
 
@@ -31,6 +24,22 @@ const addPatroller = async (req, res) => {
   userData.uid = uid;
 
   try {
+    const username = await db
+      .collection("patrollers")
+      .where("username", "==", userData.username)
+      .get();
+    const phoneNumber = await db
+      .collection("patrollers")
+      .where("phoneNo", "==", userData.phoneNo)
+      .get();
+
+    if (!username.empty) {
+      throw Error("Username is taken");
+    }
+    if (!phoneNumber.empty) {
+      throw Error("Phone number is taken");
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(userData.password, salt);
     userData.password = hash;
@@ -40,7 +49,7 @@ const addPatroller = async (req, res) => {
 
     res.status(200).send({ message: "Added Successfully" });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(409).json({ error: error.message });
   }
 };
 
