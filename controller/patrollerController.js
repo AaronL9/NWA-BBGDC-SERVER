@@ -6,6 +6,7 @@ const auth = admin.auth();
 
 const patrollerLogin = async (req, res) => {
   const { identifier, password } = req.body;
+
   try {
     const username = await db
       .collection("patrollers")
@@ -27,15 +28,19 @@ const patrollerLogin = async (req, res) => {
     }
 
     const patroller = querySnapshot.docs[0].data();
+    const id = querySnapshot.docs[0].id;
 
     const match = await bcrypt.compare(password, patroller.password);
     if (!match) {
       throw Error("Incorrect password");
     }
 
-    const token = await auth.createCustomToken(patroller.uid);
+    const token = await auth.createCustomToken(patroller.uid, {
+      patroller: true,
+    });
+    delete patroller.password;
 
-    res.status(200).send({ token });
+    res.status(200).send({ token, id, patroller });
   } catch (error) {
     res.status(401).json({ error: error.message });
   }

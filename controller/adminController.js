@@ -3,18 +3,18 @@ const { admin } = require("../firebase/adminSdk");
 const bcrypt = require("bcrypt");
 
 const db = admin.firestore();
-const uid = "sZn6iAa3IcNBhtgpofR2ykA1yRo2";
+const uid = "5FA9kYaagseNlsgvvA63TCWO2qY2";
 const customClaims = { admin: true };
 
-const setAdmin = () => {
+const setAdmin = (req, res) => {
   admin
     .auth()
     .setCustomUserClaims(uid, customClaims)
     .then(() => {
-      console.log("done");
+      res.status(200).send({ message: "SET ADMIN SUCCESSFULLY" });
     })
     .catch((error) => {
-      console.log("error");
+      res.status(409).json({ error: error.message });
     });
 };
 
