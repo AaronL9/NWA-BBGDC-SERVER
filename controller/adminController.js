@@ -3,12 +3,12 @@ const { admin } = require("../firebase/adminSdk");
 const bcrypt = require("bcrypt");
 
 const db = admin.firestore();
+const auth = admin.auth();
 const uid = "5FA9kYaagseNlsgvvA63TCWO2qY2";
 const customClaims = { admin: true };
 
 const setAdmin = (req, res) => {
-  admin
-    .auth()
+  auth
     .setCustomUserClaims(uid, customClaims)
     .then(() => {
       res.status(200).send({ message: "SET ADMIN SUCCESSFULLY" });
@@ -20,8 +20,6 @@ const setAdmin = (req, res) => {
 
 const addPatroller = async (req, res) => {
   const userData = req.body;
-  const uid = uuidv4();
-  userData.uid = uid;
 
   try {
     const username = await db
@@ -40,12 +38,19 @@ const addPatroller = async (req, res) => {
       throw Error("Phone number is taken");
     }
 
+    const { uid } = await auth.createUser({
+      email: userData.email,
+      displayName: `${userData.firstName} ${userData.lastName}`,
+    });
+    userData.uid = uid;
+    console.log(uid);
+
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(userData.password, salt);
     userData.password = hash;
 
-    const docRef = db.collection("patrollers");
-    await docRef.add(userData);
+    // const docRef = db.collection("patrollers").doc(uid);
+    // await docRef.set(userData);
 
     res.status(200).send({ message: "Added Successfully" });
   } catch (error) {
