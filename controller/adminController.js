@@ -20,6 +20,7 @@ const setAdmin = (req, res) => {
 
 const addPatroller = async (req, res) => {
   const userData = req.body;
+  userData.uid = uuidv4();
 
   try {
     const username = await db
@@ -38,19 +39,12 @@ const addPatroller = async (req, res) => {
       throw Error("Phone number is taken");
     }
 
-    const { uid } = await auth.createUser({
-      email: userData.email,
-      displayName: `${userData.firstName} ${userData.lastName}`,
-    });
-    userData.uid = uid;
-    console.log(uid);
-
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(userData.password, salt);
     userData.password = hash;
 
-    // const docRef = db.collection("patrollers").doc(uid);
-    // await docRef.set(userData);
+    const docRef = db.collection("patrollers").doc(userData.uid);
+    await docRef.set(userData);
 
     res.status(200).send({ message: "Added Successfully" });
   } catch (error) {
