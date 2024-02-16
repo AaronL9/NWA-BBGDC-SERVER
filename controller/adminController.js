@@ -1,6 +1,6 @@
-const { v4: uuidv4 } = require("uuid");
 const { admin } = require("../firebase/adminSdk");
 const bcrypt = require("bcrypt");
+const randomstring = require("randomstring");
 
 const db = admin.firestore();
 const auth = admin.auth();
@@ -20,7 +20,7 @@ const setAdmin = (req, res) => {
 
 const addPatroller = async (req, res) => {
   const userData = req.body;
-  userData.uid = uuidv4();
+  userData.uid = randomstring.generate(28);
 
   try {
     const username = await db

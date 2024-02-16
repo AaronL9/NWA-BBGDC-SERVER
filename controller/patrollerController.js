@@ -28,7 +28,6 @@ const patrollerLogin = async (req, res) => {
     }
 
     const patroller = querySnapshot.docs[0].data();
-    const id = querySnapshot.docs[0].id;
 
     const match = await bcrypt.compare(password, patroller.password);
     if (!match) {
@@ -40,7 +39,7 @@ const patrollerLogin = async (req, res) => {
     });
     delete patroller.password;
 
-    res.status(200).send({ token, id, patroller });
+    res.status(200).send({ token });
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
