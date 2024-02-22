@@ -10,6 +10,7 @@ const app = express();
 
 const adminRoutes = require("./routes/adminRoutes");
 const patrollerRoutes = require("./routes/patrollerRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 // middleware
 app.use(cors());
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
 });
 
 // routes
+app.use("/api/push", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/patroller", patrollerRoutes);
 

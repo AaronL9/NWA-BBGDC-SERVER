@@ -39,6 +39,7 @@ const addPatroller = async (req, res) => {
       throw Error("Phone number is taken");
     }
 
+    const rawPass = userData.password;
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(userData.password, salt);
     userData.password = hash;
@@ -46,9 +47,33 @@ const addPatroller = async (req, res) => {
     const docRef = db.collection("patrollers").doc(userData.uid);
     await docRef.set(userData);
 
-    res.status(200).send({ message: "Added Successfully" });
+    docRef
+      .collection("credentials")
+      .doc(userData.uid)
+      .set({ password: rawPass });
+
+    const displayName = `${userData.firstName} ${userData.lastName}`;
+    const id = userData.uid;
+    await createConversation({ id, displayName });
+
+    res.status(200).send({ message: "success" });
   } catch (error) {
     res.status(409).json({ error: error.message });
+  }
+};
+
+const createConversation = async (patroller) => {
+  try {
+    const querySnapshot = await db.collection("admins").get();
+
+    querySnapshot.forEach((doc) => {
+      const { displayName } = doc.data();
+      const id = doc.id;
+      const admin = { id, displayName };
+      db.collection("rooms").add({ patroller, admin, updatedAt: new Date() });
+    });
+  } catch (error) {
+    console.error("Error creating convo: ", error);
   }
 };
 
