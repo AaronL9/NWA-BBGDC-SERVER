@@ -3,14 +3,13 @@ const router = express.Router();
 
 const {
   setAdmin,
-  addPatroller,
-  sendNotification,
+  addPatrollerByPhoneNumber,
 } = require("../controller/adminController");
 const { verifyAdminToken } = require("../middleware/requireAuth");
 
-router.use(verifyAdminToken);
+router.post("/custom_claim", setAdmin);
 
-router.get("/custom_claim", setAdmin);
-router.post("/add_patroller", addPatroller);
+router.use(verifyAdminToken);
+router.post("/add_patroller", addPatrollerByPhoneNumber);
 
 module.exports = router;

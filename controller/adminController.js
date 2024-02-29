@@ -1,15 +1,18 @@
 const { admin } = require("../firebase/adminSdk");
-const bcrypt = require("bcrypt");
-const randomstring = require("randomstring");
 
 const db = admin.firestore();
 const auth = admin.auth();
-const uid = "5FA9kYaagseNlsgvvA63TCWO2qY2";
-const customClaims = { admin: true };
 
 const setAdmin = (req, res) => {
+  const { uid, key } = req.body;
+
+  if (process.env.DEVELOPER_KEY !== key) {
+    res.status(409).json({ error: "not allowed" });
+    return;
+  }
+
   auth
-    .setCustomUserClaims(uid, customClaims)
+    .setCustomUserClaims(uid, { admin: true })
     .then(() => {
       res.status(200).send({ message: "SET ADMIN SUCCESSFULLY" });
     })
@@ -18,47 +21,28 @@ const setAdmin = (req, res) => {
     });
 };
 
-const addPatroller = async (req, res) => {
-  const userData = req.body;
-  userData.uid = randomstring.generate(28);
+const addPatrollerByPhoneNumber = async (req, res) => {
+  const patrollerInfo = req.body;
 
   try {
-    const username = await db
-      .collection("patrollers")
-      .where("username", "==", userData.username)
-      .get();
-    const phoneNumber = await db
-      .collection("patrollers")
-      .where("phoneNo", "==", userData.phoneNo)
-      .get();
+    const { uid } = await auth.createUser({
+      phoneNumber: patrollerInfo.phoneNumber,
+    });
+    await auth.setCustomUserClaims(uid, {
+      patroller: true,
+    });
+    patrollerInfo.uid = uid;
 
-    if (!username.empty) {
-      throw Error("Username is taken");
-    }
-    if (!phoneNumber.empty) {
-      throw Error("Phone number is taken");
-    }
+    const docRef = db.collection("patrollers").doc(uid);
+    await docRef.set(patrollerInfo);
 
-    const rawPass = userData.password;
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(userData.password, salt);
-    userData.password = hash;
-
-    const docRef = db.collection("patrollers").doc(userData.uid);
-    await docRef.set(userData);
-
-    docRef
-      .collection("credentials")
-      .doc(userData.uid)
-      .set({ password: rawPass });
-
-    const displayName = `${userData.firstName} ${userData.lastName}`;
-    const id = userData.uid;
+    const displayName = `${patrollerInfo.firstName} ${patrollerInfo.lastName}`;
+    const id = uid;
     await createConversation({ id, displayName });
 
-    res.status(200).send({ message: "success" });
+    res.status(200).json({ message: "Added Successfully" });
   } catch (error) {
-    res.status(409).json({ error: error.message });
+    res.status(404).json({ error: error.message });
   }
 };
 
@@ -77,4 +61,4 @@ const createConversation = async (patroller) => {
   }
 };
 
-module.exports = { setAdmin, addPatroller };
+module.exports = { setAdmin, addPatrollerByPhoneNumber };

@@ -9,7 +9,6 @@ const cors = require("cors");
 const app = express();
 
 const adminRoutes = require("./routes/adminRoutes");
-const patrollerRoutes = require("./routes/patrollerRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 
 // middleware
@@ -24,7 +23,6 @@ app.use((req, res, next) => {
 // routes
 app.use("/api/push", notificationRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/patroller", patrollerRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
