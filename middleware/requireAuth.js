@@ -1,6 +1,6 @@
 const { admin } = require("../firebase/adminSdk");
 
-const verifyToken = async (req, res, next) => {
+const verifyPatrollerToken = async (req, res, next) => {
   const token = req.headers.authorization;
 
   if (!token) {
@@ -9,7 +9,13 @@ const verifyToken = async (req, res, next) => {
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
-    req.uid = decodedToken.uid; // Attach UID to request for later use
+    req.uid = decodedToken.uid;
+    console.log(decodedToken.patroller);
+    if (decodedToken.patroller !== true) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized - User is not an patroller" });
+    }
     next();
   } catch (error) {
     console.error("Error verifying token:", error);
@@ -51,23 +57,4 @@ const verifyAdminToken = async (req, res, next) => {
   }
 };
 
-const checkUserRole = (requiredRole) => {
-  return async (req, res, next) => {
-    const { uid } = req; // Use UID attached from verifyToken middleware
-
-    try {
-      const user = await admin.auth().getUser(uid);
-      const { customClaims } = user;
-
-      if (customClaims && customClaims.role === requiredRole) {
-        next();
-      } else {
-        res.status(403).json({ error: "Unauthorized" });
-      }
-    } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-};
-
-module.exports = { verifyToken, checkUserRole, verifyAdminToken };
+module.exports = { verifyPatrollerToken, verifyAdminToken };

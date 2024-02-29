@@ -6,11 +6,11 @@ const {
   alertAllPatrollers,
   sendChatNotificationToAdmin,
 } = require("../controller/notificationController");
-const { verifyToken } = require("../middleware/requireAuth");
+const { verifyPatrollerToken } = require("../middleware/requireAuth");
 
-router.post("/notify-admin", sendChatNotificationToAdmin);
-router.use(verifyToken);
+router.use(verifyPatrollerToken);
 router.get("/alert", alertAllPatrollers);
+router.post("/notify-admin", sendChatNotificationToAdmin);
 router.post("/chat-notification", sendChatNotification);
 
 module.exports = router;
