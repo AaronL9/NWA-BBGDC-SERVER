@@ -1,6 +1,6 @@
 const { admin } = require("../firebase/adminSdk");
 
-const verifyPatrollerToken = async (req, res, next) => {
+const authorization = async (req, res, next) => {
   const token = req.headers.authorization;
 
   if (!token) {
@@ -10,12 +10,6 @@ const verifyPatrollerToken = async (req, res, next) => {
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
     req.uid = decodedToken.uid;
-    console.log(decodedToken.patroller);
-    if (decodedToken.patroller !== true) {
-      return res
-        .status(403)
-        .json({ error: "Unauthorized - User is not an patroller" });
-    }
     next();
   } catch (error) {
     console.error("Error verifying token:", error);
@@ -57,4 +51,4 @@ const verifyAdminToken = async (req, res, next) => {
   }
 };
 
-module.exports = { verifyPatrollerToken, verifyAdminToken };
+module.exports = { authorization, verifyAdminToken };
