@@ -1,6 +1,6 @@
 const { admin } = require("../firebase/adminSdk");
 
-const authorization = async (req, res, next) => {
+const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization;
 
   if (!token) {
@@ -51,4 +51,4 @@ const verifyAdminToken = async (req, res, next) => {
   }
 };
 
-module.exports = { authorization, verifyAdminToken };
+module.exports = { verifyToken, verifyAdminToken };
