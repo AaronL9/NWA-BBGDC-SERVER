@@ -85,6 +85,34 @@ const sendChatNotification = async (req, res) => {
   }
 };
 
+const alertAllAdmin = async (req, res) => {
+  try {
+    const querySnapshot = await db.collection("admin_push_token").get();
+    const tokens = querySnapshot.docs.map((doc) => doc.data().token);
+
+    const message = {
+      notification: {
+        title: "New Message!",
+        body: "you have new message from patroller",
+      },
+      tokens,
+    };
+    admin
+      .messaging()
+      .sendEachForMulticast(message)
+      .then((response) => {
+        console.log("Successfully sent message:", response);
+      })
+      .catch((error) => {
+        console.error("Error sending message:", error);
+      });
+
+    res.status(200).send("ok");
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
 const alertAllPatrollers = async (req, res) => {
   const message = {
     title: "Alert!",
@@ -110,4 +138,5 @@ module.exports = {
   sendChatNotification,
   alertAllPatrollers,
   sendChatNotificationToAdmin,
+  alertAllAdmin,
 };
