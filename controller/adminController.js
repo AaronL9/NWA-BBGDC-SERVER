@@ -61,4 +61,19 @@ const createConversation = async (patroller) => {
   }
 };
 
-module.exports = { setAdmin, addPatrollerByPhoneNumber };
+const changeUserStatus = async (req, res) => {
+  const { uid, disabled } = req.body;
+
+  try {
+    await auth.updateUser(uid, { disabled });
+    await db.collection("users").doc(uid).update({ disabled });
+
+    res.status(200).json({ message: "User status successfully changed" });
+  } catch (error) {
+    res.status(200).json({
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { setAdmin, addPatrollerByPhoneNumber, changeUserStatus };
