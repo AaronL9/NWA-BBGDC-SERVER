@@ -76,4 +76,42 @@ const changeUserStatus = async (req, res) => {
   }
 };
 
-module.exports = { setAdmin, addPatrollerByPhoneNumber, changeUserStatus };
+const deletePatroller = async (req, res) => {
+  const { uid } = req.body;
+  try {
+    await auth.deleteUser(uid);
+    await db.doc(`patrollers/${uid}`).delete();
+
+    await deleteConversation(uid);
+
+    res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const deleteConversation = async (patrollerId) => {
+  try {
+    const querySnapshot = await db
+      .collection("rooms")
+      .where("patroller.id", "==", patrollerId)
+      .get();
+
+    const batch = db.batch();
+
+    querySnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+  } catch (error) {
+    console.error("Error deleting convo: ", error);
+  }
+};
+
+module.exports = {
+  setAdmin,
+  addPatrollerByPhoneNumber,
+  changeUserStatus,
+  deletePatroller,
+};
