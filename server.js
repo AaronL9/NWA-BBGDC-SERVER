@@ -26,6 +26,8 @@ app.use("/api/public", publicRoutes);
 app.use("/api/push", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
+app.use("/", (req, res) => {
+  res.status(200).json({ message: "hello" });
 });
+
+module.exports = app;
