@@ -80,7 +80,7 @@ const deletePatroller = async (req, res) => {
   const { uid } = req.body;
   try {
     await auth.deleteUser(uid);
-    await db.doc(`patrollers/${uid}`).delete();
+    await db.collection("patrollers").doc(uid).delete();
 
     await deleteConversation(uid);
 
