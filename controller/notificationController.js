@@ -24,7 +24,7 @@ const pushNotification = async (pushTokens, message) => {
         console.log(ticketChunk);
         tickets.push(...ticketChunk);
       } catch (error) {
-        console.error(error);
+        console.log(error);
       }
     }
   })();
