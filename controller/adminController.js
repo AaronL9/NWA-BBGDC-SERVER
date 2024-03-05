@@ -81,6 +81,7 @@ const deletePatroller = async (req, res) => {
   try {
     await auth.deleteUser(uid);
     await db.collection("patrollers").doc(uid).delete();
+    await db.collection("device_push_token").doc(uid).delete();
 
     await deleteConversation(uid);
 
