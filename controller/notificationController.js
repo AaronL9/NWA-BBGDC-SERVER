@@ -107,9 +107,9 @@ const alertAllAdmin = async (req, res) => {
         console.error("Error sending message:", error);
       });
 
-    res.status(200).send("ok");
+    res.status(200).json({ message: "success" });
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -128,7 +128,7 @@ const alertAllPatrollers = async (req, res) => {
     const tokens = querySnapshot.docs.map((doc) => doc.data().token);
     await pushNotification(tokens, message);
 
-    res.status(200).json("Success");
+    res.status(200).json({ message: "Success" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
