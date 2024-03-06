@@ -134,9 +134,31 @@ const alertAllPatrollers = async (req, res) => {
   }
 };
 
+const notifyUsers = async (req, res) => {
+  const { title } = req.body;
+
+  const message = {
+    title: "News",
+    sound: "default",
+    body: title,
+    priority: "high",
+  };
+
+  try {
+    const querySnapshot = await db.collection("user_push_token").get();
+    const tokens = querySnapshot.docs.map((doc) => doc.data().token);
+    await pushNotification(tokens, message);
+
+    res.status(200).json({ message: "Success" });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   sendChatNotification,
   alertAllPatrollers,
   sendChatNotificationToAdmin,
   alertAllAdmin,
+  notifyUsers,
 };
