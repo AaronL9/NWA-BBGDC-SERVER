@@ -92,8 +92,8 @@ const alertAllAdmin = async (req, res) => {
 
     const message = {
       notification: {
-        title: "New Message!",
-        body: "you have new message from patroller",
+        title: "Alert!",
+        body: "New report has been submitted",
       },
       tokens,
     };

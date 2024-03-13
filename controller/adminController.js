@@ -4,7 +4,12 @@ const db = admin.firestore();
 const auth = admin.auth();
 
 const setAdmin = (req, res) => {
-  const { uid, key } = req.body;
+  const { uid, key, displayName } = req.body;
+
+  if (!uid || !key || !displayName) {
+    res.status(409).json({ error: "Please fill up all required fields" });
+    return;
+  }
 
   if (process.env.DEVELOPER_KEY !== key) {
     res.status(409).json({ error: "not allowed" });
@@ -14,6 +19,7 @@ const setAdmin = (req, res) => {
   auth
     .setCustomUserClaims(uid, { admin: true })
     .then(() => {
+      createConversationWithAdmin({ id: uid, displayName });
       res.status(200).send({ message: "SET ADMIN SUCCESSFULLY" });
     })
     .catch((error) => {
@@ -54,6 +60,21 @@ const createConversation = async (patroller) => {
       const { displayName } = doc.data();
       const id = doc.id;
       const admin = { id, displayName };
+      db.collection("rooms").add({ patroller, admin, updatedAt: new Date() });
+    });
+  } catch (error) {
+    console.error("Error creating convo: ", error);
+  }
+};
+
+const createConversationWithAdmin = async (admin) => {
+  try {
+    const querySnapshot = await db.collection("patrollers").get();
+
+    querySnapshot.forEach((doc) => {
+      const { firstName, lastName } = doc.data();
+      const id = doc.id;
+      const patroller = { id, displayName: `${firstName} ${lastName}` };
       db.collection("rooms").add({ patroller, admin, updatedAt: new Date() });
     });
   } catch (error) {
