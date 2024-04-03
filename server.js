@@ -11,6 +11,7 @@ const app = express();
 const adminRoutes = require("./routes/adminRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const publicRoutes = require("./routes/publicRoutes");
+// const developerRoutes = require("./routes/developerRoutes");
 
 // middleware
 app.use(cors());
@@ -25,6 +26,7 @@ app.use((req, res, next) => {
 app.use("/api/public", publicRoutes);
 app.use("/api/push", notificationRoutes);
 app.use("/api/admin", adminRoutes);
+// app.use("/api/developer", developerRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);

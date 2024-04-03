@@ -86,6 +86,9 @@ const sendChatNotification = async (req, res) => {
 };
 
 const alertAllAdmin = async (req, res) => {
+  const { message } = req.body;
+
+  console.log("message: ", message);
   try {
     const querySnapshot = await db.collection("admin_push_token").get();
     const tokens = querySnapshot.docs.map((doc) => doc.data().token);
@@ -93,10 +96,11 @@ const alertAllAdmin = async (req, res) => {
     const message = {
       notification: {
         title: "Alert!",
-        body: "New report has been submitted",
+        body: message,
       },
       tokens,
     };
+
     admin
       .messaging()
       .sendEachForMulticast(message)
@@ -114,10 +118,12 @@ const alertAllAdmin = async (req, res) => {
 };
 
 const alertAllPatrollers = async (req, res) => {
+  const { reportType } = req.body;
+
   const message = {
     title: "Alert!",
     sound: "default",
-    body: "New reported location",
+    body: `New reported location - ${reportType}`,
     priority: "high",
   };
 
