@@ -39,4 +39,20 @@ const checkPatrollerNumber = async (req, res) => {
   }
 };
 
-module.exports = { getSingleNews, checkPatrollerNumber };
+const getDirection = async (req, res) => {
+  const { destination, origin } = req.body;
+
+  try {
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/directions/json?destination=${destination}&origin=${origin}&key=${process.env.GOOGLE_MAP_API_KEY}`
+    );
+
+    const data = await response.json();
+
+    res.status(200).json({ polyline: data.routes[0].overview_polyline.points });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+module.exports = { getSingleNews, checkPatrollerNumber, getDirection };
