@@ -88,8 +88,6 @@ const sendChatNotification = async (req, res) => {
 const alertAllAdmin = async (req, res) => {
   const { title, description } = req.body;
 
-  console.log("message: ", description);
-  console.log("message: ", title);
   try {
     const querySnapshot = await db.collection("admin_push_token").get();
     const tokens = querySnapshot.docs.map((doc) => doc.data().token);
